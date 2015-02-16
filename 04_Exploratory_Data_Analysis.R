@@ -131,7 +131,7 @@ mtext(paste("R score "|mod, 100, 250)
 # Lattice Plotting
 library(lattice)
 library(datasets)
-xyplot(Ozone~Wind, data = airquality)
+class(xyplot(Ozone~Wind, data = airquality))
 
 airquality <- transform(airquality, Month = factor(Month))
 xyplot(Ozone~Wind|Month, data = airquality, layout = c(5,1))
@@ -195,3 +195,53 @@ g <- ggplot(testdat, aes(x=x,y=y))
 #g + geom_line() + ylim(-3,3) # this subsets the data and removes any values outside the limits
 g + geom_line() + coord_cartesian(ylim = c(-3, 3)) # leaves the outlier in the data but off the oage
 
+## Week 2 Quiz
+#1. Under the lattice graphics system, what do the primary plotting functions like xyplot() and bwplot() return?
+# object trellis
+
+#2 what does this return
+library(nlme)
+library(lattice)
+xyplot(weight ~ Time | Diet, BodyWeight)
+
+
+#3
+#Annotation of plots in any plotting system involves adding points, lines, or text to the plot, in addition to customizing axis labels or adding titles. Different plotting systems have different sets of functions for annotating plots in this way. Which of the following functions can be used to annotate the panels in a multi-panel lattice plot?
+#lpoints()
+
+#4
+library(lattice)
+library(datasets)
+data(airquality)
+p <- xyplot(Ozone ~ Wind | factor(Month), data = airquality)
+p
+
+#5
+#In the lattice system, which of the following functions can be used to finely control the appearance of all lattice plots?
+# trellis.par.set()
+
+#6 
+#Question 6
+#What is ggplot2 an implementation of?
+#the Grammar of Graphics developed by Leland Wilkinson
+
+#7
+library(datasets)
+data(airquality)
+library(ggplot2)
+airquality <- transform(airquality, Month = factor(Month))
+qplot(Wind, Ozone, data = airquality, facets = . ~ Month)
+
+#8
+#What is a geom in the ggplot2 system?
+#a plotting object like point, line, or other shape
+
+#9 
+library(ggplot2)
+g <- ggplot(movies, aes(votes, rating))
+#g + geom_line()
+print(g)
+#ggplot does not yet know what type of layer to add to the plot.
+
+#10
+qplot(votes, rating, data = movies) + geom_smooth()
