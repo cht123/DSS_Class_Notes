@@ -84,6 +84,7 @@ plot(x)
 ###################################### sample analysis ############################################
 
 # base table
+library(dplyr)
 mheight <- data.frame(rnorm(100, mean = 70, sd = 3))
 names(mheight) <- 'height'
 mweight <- data.frame((mheight * (2.5 + rnorm(100, mean = 1, sd = 0.2))))
@@ -98,7 +99,6 @@ names(wweight) <- 'weight'
 wgender <- data.frame(gender = gl(1, 100, labels = c("Female")))
 wdata <- bind_cols(wheight, wweight, wgender)
 
-library(dplyr)
 data <- bind_rows(mdata, wdata)
 
 # calc stats
@@ -119,7 +119,7 @@ legend("topleft", pch = 20, col = c("blue", "pink"), legend = c("Male", "Female"
 library(dplyr)
 library(tidyr)
 tl <- data %>% group_by(gender) %>% summarise(num = n(), na.rm = T) %>% spread(gender, num)
-boxplot(data$weight~data$gender, xlab = "Gender", ylab = "Weight", main = "Boxplot of weight by gender", col = c("pink", "blue"))
+)boxplot(data$weight~data$gender, xlab = "Gender", ylab = "Weight", main = "Boxplot of weight by gender", col = c("pink", "blue"))
 mtext(paste("R score "|mod, 100, 250)
 
       
@@ -131,19 +131,20 @@ mtext(paste("R score "|mod, 100, 250)
 # Lattice Plotting
 library(lattice)
 library(datasets)
-class(xyplot(Ozone~Wind, data = airquality))
+xyplot(Ozone~Wind, data = airquality)
 
 airquality <- transform(airquality, Month = factor(Month))
 xyplot(Ozone~Wind|Month, data = airquality, layout = c(5,1))
 
 # plotting functions in Lattice Plot
 set.seed(10)
-x <- rnorm(100)
+x <- rnorm(100) 
+z <- rnorm(100)
 f <- rep(0:1, each = 50)
 y <- x + f - f *x + rnorm(100, sd = 0.5)
 f <- factor(f, labels = c("Group 1", "Group 2"))
 xyplot(y~x|f, layout = c(2,1))
-
+cor(x,z)
 #add median line
 xyplot(y~x|f, panel = function(x,y,...) {
   panel.xyplot(x,y,...)
@@ -177,13 +178,44 @@ qplot(displ, hwy, data = mpg, geom = c("point", "smooth"), method = "lm", facets
 # standard gggplot
 str(mpg)
 g <- ggplot(mpg, aes(displ, hwy))
+g
 #g <- g + geom_point(aes(color = class), size = 4, alpha = 1/2) # sets color by factor variable
 g <- g + geom_point(color = "steelblue", size = 4, alpha = 1/2) # sets color for all variables
+g
 g <- g + facet_grid(.~drv)
+g
 g <- g + geom_smooth(method = "lm", size = 1, linetype = 2)
+g
 g <- g + theme_bw()
+g
 g <- g + labs(title = "Mileage Analysis", x = "Displacement", y = "Highway Mileage")
 g
+
+# 2 standard ggplot
+str(mpg)
+g <- ggplot(mpg, displ, hwy)
+g
+g <- g + geom_point(aes(color = class), size = 4, alpha = 1/2) # sets color by factor variable
+g
+g <- g + facet_grid(.~drv)
+g
+g <- g + geom_smooth(method = "lm", size = 1, linetype = 2)
+g
+g <- g + theme_bw()
+g
+g <- g + labs(title = "Mileage Analysis", x = "Displacement", y = "Highway Mileage")
+g
+
+# 3 standard ggplot
+# standard gggplot
+
+g <- ggplot(mpg, aes(displ,hwy, col = drv))
+g <- g + geom_point(size = 3, alpha = 1/2)
+g <- g + scale_color_discrete(name = "Drive Type")
+g <- g + theme_bw()
+g <- g + geom_smooth(method = "lm", size = 1, linetype = 3)
+g
+
 
 # setting limits
 # in base plot
@@ -245,3 +277,141 @@ print(g)
 
 #10
 qplot(votes, rating, data = movies) + geom_smooth()
+
+
+## Hierarchical Clustering
+set.seed(1234)
+par(mar = c(1,3,3,1))
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2)
+y <- rnorm(12, mean = rep(c(1,2,1), each = 4), sd = 0.2)
+plot(x,y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+dataFrame <- data.frame(x=x, y=y)
+distxy <- dist(dataFrame)
+hClustering <- hclust(distxy)
+plot(hClustering)
+
+# create a heatmap
+dataFrame2 <- data.frame(x=x, y=y)
+set.seed(143)
+dataMatrix <- as.matrix(dataFrame)[sample(1:12), ]
+heatmap(dataMatrix)
+
+# K-means clustering
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2)
+y <- rnorm(12, mean = rep(c(1,2,1), each = 4), sd = 0.2)
+plot(x,y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+dataFrame <- data.frame(x=x, y=y)
+
+# calculate the number of clusters
+wssplot <- function(data, nc=2, seed=1234){
+  wss <- (nrow(data)-1)*sum(apply(data,2,var))
+  for (i in 2:nc){
+    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers=i)$withinss)}
+  plot(1:nc, wss, type="b", xlab="Number of Clusters",
+       ylab="Within groups sum of squares")}
+
+wssplot(dataFrame, 2)
+
+kmeansObj <- kmeans(dataFrame, centers = 3, nstart = 25)
+names(kmeansObj)
+plot(x,y, col = kmeansObj$cluster, pch = 19, cex = 2)
+points(kmeansObj$centers, col = 1:3, pch = 3, cex = 3, lwd = 3)
+
+
+# K means clustering example
+x <- rnorm(100, mean = rep(1:5, each = 20), sd = 0.2)
+y <- rnorm(100, mean = rep(c(1,2,1, 5, 10), each = 20), sd = 0.2)
+z <- rnorm(100, mean = rep(c(2,3,1,4,6), each = 20), sd = 0.5) 
+plot(x,y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:100))
+dataFrame <- data.frame(x=x, y=y, z=z)
+# refer tohttp://www.r-statistics.com/2013/08/k-means-clustering-from-r-in-action/
+wssplot <- function(data, nc=15, seed=1234){
+  wss <- (nrow(data)-1)*sum(apply(data,2,var))
+  for (i in 2:nc){
+    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers=i)$withinss)}
+  plot(1:nc, wss, type="b", xlab="Number of Clusters",
+       ylab="Within groups sum of squares")}
+
+wssplot(dataFrame, 15)
+kmeansObj <- kmeans(dataFrame, centers = 5, nstart = 25)
+plot(x,y, col = kmeansObj$cluster, pch = 19, cex = 2)
+points(kmeansObj$centers, col = 1:3, pch = 3, cex = 3, lwd = 3)
+
+
+# kmeans clustering example
+#install.packages("rattle")
+data(wine, package = "rattle")
+head(wine)
+
+# standardize variables
+#require(stats)
+# x <- matrix(1:10, ncol = 1)
+# centered.scaled.x <- scale(x, scale = TRUE) # all 1
+df <- scale(wine[-1])
+wssplot(df, 15)
+#install.packages("NbClust")
+library(NbClust)
+set.seed(1234)
+nc <- NbClust(df, min.nc=2, max.nc=15, method="kmeans")
+table(nc$Best.n[1,])
+barplot(table(nc$Best.n[1,]),
+        xlab="Numer of Clusters", ylab="Number of Criteria",
+        main="Number of Clusters Chosen by 26 Criteria")
+
+set.seed(1234)
+fit.km <- kmeans(df, 3, nstart=25)
+fit.km$size
+pairs(wine[-1])
+plot(df[,1], df[,5], col = fit.km$cluster, pch = 19, cex = 0.75)
+points(fit.km$centers, col = 1:3, pch = 3, cex = 3, lwd = 3)
+aggregate(wine[-1], by=list(cluster=fit.km$cluster), mean)
+
+# do a cross tab of wine type and cluster
+ct.km <- table(wine$Type, fit.km$cluster)
+ct.km
+
+# check cluster accuracy
+install.packages("flexclust")
+library(flexclust)
+randIndex(ct.km) # between -1 (no fit) and 1 (perfect agreement)
+
+
+# Prinicipal Components/ Dimension Reduction
+#create random data image
+set.seed(12345)
+par(mar = rep (0.2,4))
+dataMatrix <- matrix(rnorm(400), nrow = 40)
+image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
+
+# run hierarchical cluster
+par(mar = rep (0.2,4))
+heatmap(dataMatrix)
+
+# create a pattern in the data
+set.seed(678910)
+for (i in 1:40) {
+  # flip a coin
+  coinFlip <- rbinom(1, size = 1, prob = 0.5)
+  # if coin is heads up add a pattern to the row
+  if (coinFlip) {
+    dataMatrix[i,] <- dataMatrix[i, ] + rep(c(0,3), each = 5)
+  }
+}  
+
+# plot the data again
+image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
+# run the hierarchical cluster again
+heatmap(dataMatrix)
+
+# check the pattern in rows and columns
+hh <- hclust(dist(dataMatrix))
+dataMatrixOrdered <- dataMatrix[hh$order, ]
+par(mfrow = c(1,3))
+image(t(dataMatrixOrdered)[,nrow(dataMatrixOrdered):1])
+plot(rowMeans(dataMatrixOrdered), 40:1, , xlab = "Row Mean", ylab = "Row", pch = 19)
+plot(colMeans(dataMatrixOrdered), xlab = "Column", ylab = "Column Mean", pch = 19)
