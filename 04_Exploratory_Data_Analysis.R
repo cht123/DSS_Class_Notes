@@ -291,6 +291,20 @@ distxy <- dist(dataFrame)
 hClustering <- hclust(distxy)
 plot(hClustering)
 
+
+## Hierarchical Clustering 3 variables
+set.seed(1234)
+par(mar = c(1,3,3,1))
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2)
+y <- rnorm(12, mean = rep(c(1,2,1), each = 4), sd = 0.2)
+2 <- rnorm(12, mean = rep(c(2,2,1), each = 4), sd = 0.3)
+plot(x,y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+dataFrame <- data.frame(x=x, y=y, z=z)
+distxy <- dist(dataFrame)
+hClustering <- hclust(distxy)
+plot(hClustering)
+
 # create a heatmap
 dataFrame2 <- data.frame(x=x, y=y)
 set.seed(143)
@@ -449,7 +463,7 @@ b <- c(rep('A', 29), rep('B', 21),rep('C', 10),rep('D', 40))
 c <- data_frame(b = b,a = a)
 table(b)
 
-barplot(table(b), col =colorRampPalette(brewer.pal(9,"Accent"))(6), border = NA)
+barplot(table(b), col = colorRampPalette(brewer.pal(9,"Accent"))(6), border = NA)
 # get chart of all colors 
 display.brewer.all()
 
